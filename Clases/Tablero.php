@@ -5,34 +5,34 @@ class Tablero
     public $minas;
     public $tam;
     public $terminado;
+    public $codigo;
     public static $ID;
 
-    public function __call($nombre, $args)
+    public function __construct()
     {
-        if (count($args) == 2) {
-            $this->__call('__construct0', $args);
-        } else if (count($args) == 5) {
-            $this->__call('__construct1', $args);
+        $agumentos = func_get_args();
+        $nArg = func_num_args();
+        if (method_exists($this, $metodo = '__construct' . $nArg)) {
+            call_user_func_array(array($this, $metodo), $agumentos);
         }
     }
-    private function __construct0($tam, $minas)
+    private function __construct1($tam, $minas)
     {
+        $this->minas = $minas;
+        $this->tam = $tam;
+        $this->tablero = [];
         $this->terminado = false;
-        $this->tablero = array();
-        $this->tam = $tam;
-        $this->minas = $minas;
-        self::$ID++ . "A";
+        self::$ID++ . 'A';
+        $this->codigo = self::$ID;
     }
-
-    private function __construct1($terminado, $tablero, $tam, $minas, $id)
+    private function __construct5($id,$terminado,$tablero,$tam,$minas)
     {
-        $this->terminado = $terminado;
-        $this->tablero = $tablero;
-        $this->tam = $tam;
         $this->minas = $minas;
-        self::$ID = $id;
+        $this->tam = $tam;
+        $this->tablero = $tablero;
+        $this->terminado = $terminado;
+        $this->codigo = $id;
     }
-
 
 
     function __toString()
@@ -40,7 +40,7 @@ class Tablero
         $cad = "";
         for ($i = 0; $i < $this->tam; $i++) {
             if ($this->tablero[$i] == -1) {
-                $cad = $cad . ' ¡¡¡ BUM !!! ';
+                $cad = $cad . ' BUM ';
             } else {
                 $cad = $cad . $this->tablero[$i] . ' ';
             }
@@ -77,6 +77,7 @@ class Tablero
             $this->tablero[$i] = 0;
         }
         $this->colocarMina();
+        $this->ColocarPista();
         return $this->tablero;
     }
 
@@ -90,25 +91,25 @@ class Tablero
             }
         }
     }
-    function ComprobarSiHayMina($pos)
+    function HayMina($pos){
+        return $this->tablero[$pos]==-1;
+    }
+    function ColocarPista()
     {
-        $resultado = 0;
-        if ($this->tablero[$pos] == -1) {
-            $resultado = 1;
-        }
-        if ($pos - 1 >= 0) {
-            if ($this->tablero[$pos - 1] == -1) {
-                $this->tablero[$pos]++;
-                $resultado = 2;
+        for ($i = 0; $i < count($this->tablero); $i++) {
+            if ($this->tablero[$i] == -1) {
+                if ($i - 1 >= 0){
+                    if ($this->tablero[$i - 1] != -1){
+                       $this->tablero[$i - 1]++;
+                    }
+                }
+                if ($i + 1 < count($this->tablero)){
+                    if ($this->tablero[$i + 1] != -1){
+                        $this->tablero[$i + 1]++;
+                    }
+                }
             }
         }
-        if ($pos + 1 <= $this->length - 1) {
-            if ($this->tablero[$pos + 1] == -1) {
-                $this->tablero[$pos]++;
-                $resultado = 2;
-            }
-        }
-        return $resultado;
     }
 
     public function getTerminado()
@@ -126,5 +127,19 @@ class Tablero
     public function getID()
     {
         return $this->ID;
+    }
+    public function getTam()
+    {
+        return $this->tam;
+    }
+
+    public function getCodigo()
+    {
+        return $this->codigo;
+    }
+
+    public function getMinas()
+    {
+        return $this->minas;
     }
 }
