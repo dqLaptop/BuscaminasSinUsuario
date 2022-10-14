@@ -1,5 +1,5 @@
 <?php
-require_once './Clases/Tablero.php';
+require_once __DIR__.'/Clases/Tablero.php';
 class Factoria
 {
     static function crearTablero($nivel)

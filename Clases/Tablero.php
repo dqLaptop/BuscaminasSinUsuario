@@ -4,33 +4,30 @@ class Tablero
     public $tablero;
     public $minas;
     public $tam;
-    public $terminado;
     public $codigo;
     public static $ID;
 
     public function __construct()
     {
-        $agumentos = func_get_args();
+        $argumentos = func_get_args();
         $nArg = func_num_args();
         if (method_exists($this, $metodo = '__construct' . $nArg)) {
-            call_user_func_array(array($this, $metodo), $agumentos);
+            call_user_func_array(array($this, $metodo), $argumentos);
         }
     }
-    private function __construct1($tam, $minas)
+    private function __construct2($tam, $minas)
     {
         $this->minas = $minas;
         $this->tam = $tam;
         $this->tablero = [];
-        $this->terminado = false;
-        self::$ID++ . 'A';
-        $this->codigo = self::$ID;
+        self::$ID++;
+        $this->codigo = self::$ID . 'A';
     }
-    private function __construct5($id,$terminado,$tablero,$tam,$minas)
+    private function __construct4($id, $tablero, $tam, $minas)
     {
         $this->minas = $minas;
         $this->tam = $tam;
         $this->tablero = $tablero;
-        $this->terminado = $terminado;
         $this->codigo = $id;
     }
 
@@ -51,7 +48,7 @@ class Tablero
     {
         $cad = "";
         for ($i = 0; $i < $this->tam; $i++) {
-            if ($this->tablero[$i] == -2) {
+            if ($this->tablero[$i] === -2) {
                 $cad = $cad . ' --- ';
             } else {
                 $cad = $cad . ' ' . $this->tablero[$i] . ' ';
@@ -91,20 +88,21 @@ class Tablero
             }
         }
     }
-    function HayMina($pos){
-        return $this->tablero[$pos]==-1;
+    function HayMina($pos)
+    {
+        return $this->tablero[$pos] == -1;
     }
     function ColocarPista()
     {
-        for ($i = 0; $i < count($this->tablero); $i++) {
+        for ($i = 0; $i < $this->tam; $i++) {
             if ($this->tablero[$i] == -1) {
-                if ($i - 1 >= 0){
-                    if ($this->tablero[$i - 1] != -1){
-                       $this->tablero[$i - 1]++;
+                if ($i - 1 >= 0) {
+                    if ($this->tablero[$i - 1] != -1) {
+                        $this->tablero[$i - 1]++;
                     }
                 }
-                if ($i + 1 < count($this->tablero)){
-                    if ($this->tablero[$i + 1] != -1){
+                if ($i + 1 < $this->tam) {
+                    if ($this->tablero[$i + 1] != -1) {
                         $this->tablero[$i + 1]++;
                     }
                 }
@@ -128,18 +126,25 @@ class Tablero
     {
         return $this->ID;
     }
-    public function getTam()
-    {
-        return $this->tam;
+    public function obtenerTam(){
+        return count($this->tablero);
     }
 
     public function getCodigo()
     {
         return $this->codigo;
     }
-
     public function getMinas()
     {
         return $this->minas;
+    }
+    public function obtenerValorTablero($i)
+    {
+        return $this->tablero[$i];
+    }
+
+    public function getTam()
+    {
+        return $this->tam;
     }
 }

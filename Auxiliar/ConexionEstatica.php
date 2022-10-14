@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../Clases/Tablero.php';
+require_once __DIR__ . '/Constantes.php';
 class ConexionEstatica
 {
     private static $conexion;
@@ -17,28 +19,13 @@ class ConexionEstatica
     }
 
 
-    static function insertarSituacionTablero($tablero, $tableroJug)
+    static function insertarSituacionPartida($partida, $t, $tj)
     {
-        $cad = '';
-        for ($i = 0; $i < count($tablero); $i++) {
-            if ($tablero[$i] == -1) {
-                $cad = $cad . '#BUM';
-            } else {
-                $cad = $cad . '#' . $tablero[$i];
-            }
-        }
-        $cadena = '';
-        for ($i = 0; $i < count($tableroJug); $i++) {
-            if ($tablero[$i] == -1) {
-                $cadena = $cadena . '#---';
-            } else {
-                $cadena = $cadena . '#' . $tablero[$i];
-            }
-        }
-        $query = "INSERT INTO " . Constantes::$tablaTablero . "(Id,Terminado,TableroOculto,TableroJug,Tam,Minas) VALUES (?,?,?,?,?,?)";
+        $query = "INSERT INTO " . Constantes::$tablaPartida . "(Id,id_tablero,Terminada,TableroOculto,TableroJug) VALUES (?,?,?,?,?)";
+        self::abrirConexion();
         try {
             $stmt = self::$conexion->prepare($query);
-            $stmt->bind_param("sbssii", $tablero->getcodigo(), $tablero->getTerminado(), $cad, $cadena, $tablero->getTam(), $tablero->getMinas());
+            $stmt->bind_param("isiss", $partida->getCod_partida(), $partida->getCod_tablero(), $partida->getTerminada(), $t, $tj);
             $stmt->execute();
             $filasAfectadas = $stmt->affected_rows;
         } catch (Exception $e) {
@@ -48,30 +35,14 @@ class ConexionEstatica
         }
         return $filasAfectadas;
     }
-    static function modificarSituacionTablero($tablero, $tableroJug)
+    static function modificarSituacionPartida($partida, $t, $tj)
     {
-        $cad = '';
-        for ($i = 0; $i < count($tablero); $i++) {
-            if ($tablero[$i] == -1) {
-                $cad = $cad . '#BUM';
-            } else {
-                $cad = $cad . '#' . $tablero[$i];
-            }
-        }
-        $cadena = '';
-        for ($i = 0; $i < count($tableroJug); $i++) {
-            if ($tablero[$i] == -1) {
-                $cadena = $cadena . '#---';
-            } else {
-                $cadena = $cadena . '#' . $tablero[$i];
-            }
-        }
         $filasAfectadas = 0;
-        $query = "UPDATE " . Constantes::$tablaTablero . " set Id  = ?,Terminado=?, TableroOculto=?, TableroJug = ?  WHERE Id = ?";
+        $query = "UPDATE " . Constantes::$tablaPartida . " set Id  = ?, Id_tablero=?, Terminada=?, TableroOculto=?, TableroJug = ?  WHERE Id = ?";
         self::abrirConexion();
         try {
             $stmt = self::$conexion->prepare($query);
-            $stmt->bind_param("sbsss", $tablero->getCodigo(), $tablero->getTerminado(), $cad, $cadena, $tablero->getCodigo());
+            $stmt->bind_param("isissi", $partida->getCod_partida(), $partida->getCod_tablero(), $partida->getTerminada(), $t, $tj, $partida->getCod_partida());
             $stmt->execute();
             $filasAfectadas = $stmt->affected_rows;
         } catch (Exception $e) {
@@ -81,14 +52,14 @@ class ConexionEstatica
         }
         return $filasAfectadas;
     }
-    static function modificarSituacionTablero2($tablero)
+    static function modificarSituacionPartida2($partida)
     {
         $filasAfectadas = 0;
-        $query = "UPDATE " . Constantes::$tablaTablero . " set Id  = ?,Terminado=?  WHERE Id = ?";
+        $query = "UPDATE " . Constantes::$tablaPartida . " set Terminada=? WHERE Id = ?";
         self::abrirConexion();
         try {
             $stmt = self::$conexion->prepare($query);
-            $stmt->bind_param("sbs", $tablero->getCodigo(), $tablero->getTerminado(), $tablero->getCodigo());
+            $stmt->bind_param("ii", $partida->getTerminada(), $partida->getCod_partida());
             $stmt->execute();
             $filasAfectadas = $stmt->affected_rows;
         } catch (Exception $e) {
@@ -99,74 +70,47 @@ class ConexionEstatica
         return $filasAfectadas;
     }
 
-    static function getUltimoTablero()
+    static function getUltimaPartida()
     {
-        $t = null;
-        $query = "Select * From " . Constantes::$tablaTablero . " Where Terminado = 0";
+        $p = null;
+        $query = "Select * From " . Constantes::$tablaPartida . " Where Terminada = 0";
         self::abrirConexion();
-        $stmt = self::$conexion->prepare($query);
-        $stmt->execute();
-        $resultados = $stmt->get_result();
         try {
+            $stmt = self::$conexion->prepare($query);
+            $stmt->execute();
+            $resultados = $stmt->get_result();
             if ($resultados->num_rows != 0) {
                 while ($fila = $resultados->fetch_array()) {
-                    $tableroOculto = explode('#', $fila[2]);
+                    $tableroOculto = explode('#', $fila[3]);
                     for ($i = 0; $i < count($tableroOculto); $i++) {
                         if ($tableroOculto[$i] == 'BUM') {
                             $tableroOculto[$i] == -1;
                         }
                     }
-                    $tableroJug = explode('#', $fila[3]);
+                    $tableroJug = explode('#', $fila[4]);
                     for ($i = 0; $i < count($tableroJug); $i++) {
                         if ($tableroJug[$i] == '---') {
                             $tableroJug[$i] == -2;
                         }
                     }
-                    $t = new Tablero($fila[0], $fila[1], $tableroOculto, $fila[4], $fila[5]);
+                    $p = new Partida($fila[0], $fila[1], $fila[2], $tableroOculto, $tableroJug);
                 }
             }
         } catch (Exception $e) {
-            $t = ['codigo' => $e->getCode(), 'mensaje' => $e->getMessage()];
+            $p = ['codigo' => $e->getCode(), 'mensaje' => $e->getMessage()];
         } finally {
-            $resultados->free_result();
-            self::cerrarConexion();
-        }
-        return $t;
-    }
-    static function getTableroJug()
-    {
-        $t = null;
-        $query = "Select * From " . Constantes::$tablaTablero . " Where Terminado = 0";
-        self::abrirConexion();
-        $stmt = self::$conexion->prepare($query);
-        $stmt->execute();
-        $resultados = $stmt->get_result();
-        try {
-            if ($resultados->num_rows != 0) {
-                while ($fila = $resultados->fetch_array()) {
-                   
-                    $tableroJug = explode('#', $fila[3]);
-                    for ($i = 0; $i < count($tableroJug); $i++) {
-                        if ($tableroJug[$i] == '---') {
-                            $tableroJug[$i] == -2;
-                        }
-                    }
-                    $t = new Tablero($fila[0], $fila[1], $tableroJug, $fila[4], $fila[5]);
-                }
+            if($resultados!=null){
+                $resultados->free_result();
             }
-        } catch (Exception $e) {
-            $t = ['codigo' => $e->getCode(), 'mensaje' => $e->getMessage()];
-        } finally {
-            $resultados->free_result();
             self::cerrarConexion();
         }
-        return $t;
+        return $p;
     }
 
-    static function eliminarTablero($id)
+    static function eliminarPartida($id)
     {
         $cod = 0;
-        $query = "Select * From " . Constantes::$tablaTablero . " Where Id = ?";
+        $query = "Select * From " . Constantes::$tablaPartida . " Where Id = ?";
         self::abrirConexion();
         try {
             $stmt = self::$conexion->prepare($query);
