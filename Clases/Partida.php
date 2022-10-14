@@ -25,7 +25,7 @@ class Partida
                 $casilla++;
             }
         }
-        if ($this->casilla > 0) {
+        if ($casilla > 0) {
             if (!$this->tableroOculto->hayMina()) {
                 $this->tableroOculto->Jugada($pos, $this->tableroJug);
                 $cad = '';
@@ -38,7 +38,7 @@ class Partida
                 }
                 $cadena = '';
                 for ($i = 0; $i < $this->tableroJug->getTam(); $i++) {
-                    if ($this->tableroJug->obtenerValorTablero($i) === -1) {
+                    if ($this->tableroJug->obtenerValorTablero($i) === -2) {
                         $cadena = $cadena . '#---';
                     } else {
                         $cadena = $cadena . '#' . $this->tableroJug->obtenerValorTablero($i);
