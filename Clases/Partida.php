@@ -13,7 +13,7 @@ class Partida
         $this->cod_tablero = $id_tablero;
         $this->cod_partida = $id;
         $this->tableroJugador = $tj;
-        $this->tableroOculto[] = $t;
+        $this->tableroOculto = $t;
         $this->terminada = $terminada;
     }
     function jugar($pos)
@@ -21,7 +21,7 @@ class Partida
         $res = 0;
         $casilla = 0;
         for ($i = 0; $i < $this->tableroOculto->getTam(); $i++) {
-            if ($this->tableroOculto->obtenerValorTablero($i) == -1) {
+            if ($this->tableroOculto->obtenerValorTablero($i) === -1) {
                 $casilla++;
             }
         }
@@ -30,7 +30,7 @@ class Partida
                 $this->tableroOculto->Jugada($pos, $this->tableroJug);
                 $cad = '';
                 for ($i = 0; $i < $this->tableroOculto->getTam(); $i++) {
-                    if ($this->tableroOculto->obtenerValorTablero($i) == -1) {
+                    if ($this->tableroOculto->obtenerValorTablero($i) === -1) {
                         $cad = $cad . '#BUM';
                     } else {
                         $cad = $cad . '#' . $this->tableroOculto->obtenerValorTablero($i);
@@ -38,7 +38,7 @@ class Partida
                 }
                 $cadena = '';
                 for ($i = 0; $i < $this->tableroJug->getTam(); $i++) {
-                    if ($this->tableroJug->obtenerValorTablero($i) == -1) {
+                    if ($this->tableroJug->obtenerValorTablero($i) === -1) {
                         $cadena = $cadena . '#---';
                     } else {
                         $cadena = $cadena . '#' . $this->tableroJug->obtenerValorTablero($i);

@@ -99,7 +99,7 @@ class ConexionEstatica
         } catch (Exception $e) {
             $p = ['codigo' => $e->getCode(), 'mensaje' => $e->getMessage()];
         } finally {
-            if($resultados!=null){
+            if ($resultados != null) { //Realizado este if porque da fallo si va en nulo
                 $resultados->free_result();
             }
             self::cerrarConexion();
